@@ -17,7 +17,7 @@ version: "3"
 
 services:
   spark-iceberg:
-    image: tabulario/spark-iceberg
+    image: claventu/spark-iceberg:0.0.1
     container_name: spark-iceberg
     build: spark/
     networks:
@@ -74,6 +74,8 @@ services:
     container_name: mc
     networks:
       iceberg_net:
+    volumes:
+      - ./s3_files:/var/local/s3_files
     environment:
       - AWS_ACCESS_KEY_ID=admin
       - AWS_SECRET_ACCESS_KEY=password
@@ -84,6 +86,13 @@ services:
       /usr/bin/mc rm -r --force minio/warehouse;
       /usr/bin/mc mb minio/warehouse;
       /usr/bin/mc policy set public minio/warehouse;
+      /usr/bin/mc rm -r --force minio/raw;
+      /usr/bin/mc mb minio/raw;
+      /usr/bin/mc cp --recursive /var/local/s3_files/ minio/raw/;
+      /usr/bin/mc policy set public minio/raw;
+      /usr/bin/mc rm -r --force minio/output;
+      /usr/bin/mc mb minio/output;
+      /usr/bin/mc policy set public minio/output;
       tail -f /dev/null
       "
 networks:
